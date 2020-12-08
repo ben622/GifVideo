@@ -1,4 +1,14 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
+publish {
+    userOrg = ''
+    groupId = 'com.ben.android'
+    artifactId = 'gifvideo'
+    publishVersion = '0.1.0'
+    desc = 'Play multiple videos simultaneously in recyclerview with a smooth playback experience'
+    website = 'https://github.com/ben622/GifVideo'
+}
+
 
 android {
     compileSdkVersion 30

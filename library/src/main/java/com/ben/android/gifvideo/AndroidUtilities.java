@@ -1,7 +1,6 @@
 package com.ben.android.gifvideo;
 
 import android.content.Context;
-import android.graphics.Matrix;
 import android.graphics.RectF;
 import android.os.Handler;
 
@@ -49,7 +48,7 @@ public final class AndroidUtilities {
         applicationHandler.removeCallbacks(runnable);
     }
 
-    public static void setRectToRect(Matrix matrix, RectF src, RectF dst, int rotation, boolean translate) {
+    public static void setRectToRect(android.graphics.Matrix matrix, RectF src, RectF dst, int rotation, boolean translate) {
         float tx, sx;
         float ty, sy;
         boolean xLarger = false;

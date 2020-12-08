@@ -11,9 +11,9 @@ package com.ben.android.gifvideo;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
-import android.util.Log;
 
 import java.util.concurrent.CountDownLatch;
+
 /**
  * DispatchQueue The source code is from <a href="https://github.com/DrKLO/Telegram/blob/master/TMessagesProj/src/main/java/org/telegram/messenger/DispatchQueue.java">https://github.com/DrKLO/Telegram/blob/master/TMessagesProj/src/main/java/org/telegram/messenger/DispatchQueue.java</a>
  * @program: GifVideo
@@ -39,7 +39,7 @@ final class DispatchQueue extends Thread {
                 handler.sendMessageDelayed(msg, delay);
             }
         } catch (Exception e) {
-            Log.e("DispatchQueue", e.getMessage());
+            android.util.Log.e("DispatchQueue", e.getMessage());
         }
     }
 
@@ -48,7 +48,7 @@ final class DispatchQueue extends Thread {
             syncLatch.await();
             handler.removeCallbacks(runnable);
         } catch (Exception e) {
-            Log.e("DispatchQueue", e.getMessage());
+            android.util.Log.e("DispatchQueue", e.getMessage());
         }
     }
 
@@ -60,7 +60,7 @@ final class DispatchQueue extends Thread {
         try {
             syncLatch.await();
         } catch (Exception e) {
-            Log.e("DispatchQueue", e.getMessage());
+            android.util.Log.e("DispatchQueue", e.getMessage());
         }
         if (delay <= 0) {
             handler.post(runnable);
@@ -74,7 +74,7 @@ final class DispatchQueue extends Thread {
             syncLatch.await();
             handler.removeCallbacksAndMessages(null);
         } catch (Exception e) {
-            Log.e("DispatchQueue", e.getMessage());
+            android.util.Log.e("DispatchQueue", e.getMessage());
         }
     }
 

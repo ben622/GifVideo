@@ -1,11 +1,9 @@
 package com.ben.android.gifvideo;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
-import android.util.Log;
-import android.widget.ImageView;
-
-import androidx.annotation.Nullable;
 
 import java.io.File;
 
@@ -15,25 +13,31 @@ import java.io.File;
  * @author: ben622
  * @create: 2020-11-27 15:34
  **/
-public final class VideoView  extends ImageView {
+public final class VideoView  extends androidx.appcompat.widget.AppCompatImageView {
     private AnimatedDrawable drawable;
     private boolean autoPlay = true;
     public VideoView(Context context) {
         super(context);
     }
 
-    public VideoView(Context context, @Nullable AttributeSet attrs) {
+    public VideoView(Context context, @androidx.annotation.Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public VideoView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public VideoView(Context context, @androidx.annotation.Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+    }
+
+    public void setOnPreparedListener(OnPreparedListener onPreparedListener) {
+        if (drawable != null) {
+            drawable.setOnPreparedListener(onPreparedListener);
+        }
     }
 
     public void setPath(String path) {
         File file = new File(path);
         if (!file.exists()) {
-            Log.e("gifvideo", "The path was not found");
+            android.util.Log.e("gifvideo", "The path was not found");
             return;
         }
         if (drawable != null) {
@@ -43,6 +47,7 @@ public final class VideoView  extends ImageView {
         setImageDrawable(drawable = new AnimatedDrawable(file));
         drawable.start();
     }
+
 
     public void start() {
         if (drawable != null) {
@@ -69,5 +74,13 @@ public final class VideoView  extends ImageView {
         if (autoPlay) {
             stop();
         }
+    }
+
+    public void setThumbnailBitmap(Bitmap bitmap) {
+        setBackground(new BitmapDrawable(bitmap));
+    }
+
+    public interface OnPreparedListener {
+        void onPrepared(int duration);
     }
 }

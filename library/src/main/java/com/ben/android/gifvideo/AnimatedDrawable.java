@@ -11,22 +11,19 @@ package com.ben.android.gifvideo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
-import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.graphics.Shader;
 import android.graphics.drawable.Animatable;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import java.io.File;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
-import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+
 /**
  * AnimatedDrawable The source code is from <a href="https://github.com/DrKLO/Telegram/blob/master/TMessagesProj/src/main/java/org/telegram/ui/Components/AnimatedFileDrawable.java">https://github.com/DrKLO/Telegram/blob/master/TMessagesProj/src/main/java/org/telegram/ui/Components/AnimatedFileDrawable.java</a>
  * @program: GifVideo
@@ -45,7 +42,7 @@ public class AnimatedDrawable extends BitmapDrawable implements Animatable {
     private static native void seekToMs(long ptr, long ms);
     private static native void prepareToSeek(long ptr);
 
-
+    private VideoView.OnPreparedListener onPreparedListener;
     private long lastFrameTime;
     private int lastTimeStamp;
     private int invalidateAfter = 50;
@@ -81,7 +78,7 @@ public class AnimatedDrawable extends BitmapDrawable implements Animatable {
     private int roundRadius;
     private RectF roundRect = new RectF();
     private RectF bitmapRect = new RectF();
-    private Matrix shaderMatrix = new Matrix();
+    private android.graphics.Matrix shaderMatrix = new android.graphics.Matrix();
 
     private float scaleX = 1.0f;
     private float scaleY = 1.0f;
@@ -91,7 +88,7 @@ public class AnimatedDrawable extends BitmapDrawable implements Animatable {
     private volatile boolean isRunning;
     private volatile boolean isRecycled;
     public volatile long nativePtr;
-    private static ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(2, new ThreadPoolExecutor.DiscardPolicy());
+    private static ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(2, new java.util.concurrent.ThreadPoolExecutor.DiscardPolicy());
     private DispatchQueue decodeQueue;
 
 
@@ -176,6 +173,9 @@ public class AnimatedDrawable extends BitmapDrawable implements Animatable {
             if (!isRecycled) {
                 if (!decoderCreated && nativePtr == 0) {
                     nativePtr = createDecoder(path.getAbsolutePath(), metaData, 0, streamFileSize, null);
+                    if (nativePtr != 0 && onPreparedListener!=null) {
+                        AndroidUtilities.runOnUIThread(()->onPreparedListener.onPrepared(metaData[4]));
+                    }
                     decoderCreated = true;
                 }
                 try {
@@ -184,10 +184,10 @@ public class AnimatedDrawable extends BitmapDrawable implements Animatable {
                             try {
                                 backgroundBitmap = Bitmap.createBitmap(metaData[0], metaData[1], Bitmap.Config.ARGB_8888);
                             } catch (Throwable e) {
-                                Log.e("AnimatedFileDrawable", e.getMessage());
+                                android.util.Log.e("AnimatedFileDrawable", e.getMessage());
                             }
                             if (backgroundShader == null && backgroundBitmap != null && roundRadius != 0) {
-                                backgroundShader = new BitmapShader(backgroundBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+                                backgroundShader = new BitmapShader(backgroundBitmap, android.graphics.Shader.TileMode.CLAMP, android.graphics.Shader.TileMode.CLAMP);
                             }
                         }
                         boolean seekWas = false;
@@ -216,7 +216,7 @@ public class AnimatedDrawable extends BitmapDrawable implements Animatable {
                         return;
                     }
                 } catch (Throwable e) {
-                    Log.e("AnimatedFileDrawable", e.getMessage() );
+                    android.util.Log.e("AnimatedFileDrawable", e.getMessage() );
                 }
             }
             AndroidUtilities.runOnUIThread(uiRunnable);
@@ -418,9 +418,8 @@ public class AnimatedDrawable extends BitmapDrawable implements Animatable {
             }
             if (roundRadius != 0) {
                 float scale = Math.max(scaleX, scaleY);
-
                 if (renderingShader == null) {
-                    renderingShader = new BitmapShader(backgroundBitmap, Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
+                    renderingShader = new BitmapShader(backgroundBitmap, android.graphics.Shader.TileMode.CLAMP, android.graphics.Shader.TileMode.CLAMP);
                 }
                 getPaint().setShader(renderingShader);
                 roundRect.set(dstRect);
@@ -504,5 +503,9 @@ public class AnimatedDrawable extends BitmapDrawable implements Animatable {
 
     public int getOrientation() {
         return metaData[2];
+    }
+
+    public void setOnPreparedListener(VideoView.OnPreparedListener onPreparedListener) {
+        this.onPreparedListener = onPreparedListener;
     }
 }
