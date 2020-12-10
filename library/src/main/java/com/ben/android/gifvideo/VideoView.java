@@ -34,6 +34,10 @@ public final class VideoView  extends androidx.appcompat.widget.AppCompatImageVi
         }
     }
 
+    public void setAutoPlay(boolean autoPlay) {
+        this.autoPlay = autoPlay;
+    }
+
     public void setPath(String path) {
         File file = new File(path);
         if (!file.exists()) {
