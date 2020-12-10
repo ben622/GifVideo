@@ -2,7 +2,7 @@
 
 Rendering and playing the video in the form of gif in Android will greatly improve the response efficiency of your application. For example, playing multiple video files in the recyclerview at the same time will not cause sliding and freezing. It will be easy to use gifvideo.
 
-### How do I use libqrencode?
+### How do I use gifvideo?
 Add dependencies in build.gradle
 
 ```
