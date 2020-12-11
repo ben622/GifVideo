@@ -11,12 +11,14 @@ import android.os.Handler;
  * @author: ben622
  * @create: 2020-11-26 11:34
  **/
-public final class AndroidUtilities {
+final class AndroidUtilities {
     private static float density = 1.0f;
     private static Handler applicationHandler;
     public static void initiate(Context context) {
-        density = context.getResources().getDisplayMetrics().density;
-        applicationHandler = new Handler(context.getMainLooper());
+        if (applicationHandler == null) {
+            density = context.getResources().getDisplayMetrics().density;
+            applicationHandler = new Handler(context.getMainLooper());
+        }
     }
     public static int dp(float value) {
         if (value == 0) {
