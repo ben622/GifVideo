@@ -1,4 +1,4 @@
-[ ![Download](https://api.bintray.com/packages/zhangchuan622/maven/gifvideo/images/download.svg?version=0.2.0) ](https://bintray.com/zhangchuan622/maven/gifvideo/0.2.0/link)
+[ ![Download](https://api.bintray.com/packages/zhangchuan622/maven/gifvideo/images/download.svg?version=0.3.0) ](https://bintray.com/zhangchuan622/maven/gifvideo/0.3.0/link)
 
 Rendering and playing the video in the form of gif in Android will greatly improve the response efficiency of your application. For example, playing multiple video files in the recyclerview at the same time will not cause sliding and freezing. It will be easy to use gifvideo.
 
