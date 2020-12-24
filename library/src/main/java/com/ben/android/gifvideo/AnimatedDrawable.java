@@ -35,7 +35,7 @@ public class AnimatedDrawable extends BitmapDrawable implements Animatable {
     static {
         System.loadLibrary("gifvideo");
     }
-    private static native long createDecoder(String src, int[] params, int account, long streamFileSize, Object readCallback);
+    private static native long createDecoder(String src, int[] params, int account, long streamFileSize);
     private static native void destroyDecoder(long ptr);
     private static native void stopDecoder(long ptr);
     private static native int getVideoFrame(long ptr, Bitmap bitmap, int[] params, int stride);
@@ -172,7 +172,7 @@ public class AnimatedDrawable extends BitmapDrawable implements Animatable {
         public void run() {
             if (!isRecycled) {
                 if (!decoderCreated && nativePtr == 0) {
-                    nativePtr = createDecoder(path.getAbsolutePath(), metaData, 0, streamFileSize, null);
+                    nativePtr = createDecoder(path.getAbsolutePath(), metaData, 0, streamFileSize);
                     if (nativePtr != 0 && onPreparedListener!=null) {
                         AndroidUtilities.runOnUIThread(()->onPreparedListener.onPrepared(metaData[4]));
                     }

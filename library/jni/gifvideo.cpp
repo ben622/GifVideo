@@ -35,6 +35,7 @@ typedef struct VideoInfo {
         }
         if (fmt_ctx) {
             avformat_close_input(&fmt_ctx);
+            avformat_free_context(fmt_ctx);
             fmt_ctx = nullptr;
         }
         if (frame) {
@@ -45,32 +46,14 @@ typedef struct VideoInfo {
             delete [] src;
             src = nullptr;
         }
-        if (stream != nullptr) {
-            JNIEnv *jniEnv = nullptr;
-            JavaVMAttachArgs jvmArgs;
-            jvmArgs.version = JNI_VERSION_1_6;
-
-            bool attached;
-            if (JNI_EDETACHED == javaVm->GetEnv((void **) &jniEnv, JNI_VERSION_1_6)) {
-                javaVm->AttachCurrentThread(&jniEnv, &jvmArgs);
-                attached = true;
-            } else {
-                attached = false;
-            }
-            jniEnv->DeleteGlobalRef(stream);
-            if (attached) {
-                javaVm->DetachCurrentThread();
-            }
-            stream = nullptr;
-        }
-        /*if (ioBuffer) { TODO memleak?
-            av_free(ioBuffer);
-            ioBuffer = nullptr;
-        }*/
         if (ioContext != nullptr) {
+            if (ioContext->buffer) {
+                av_freep(&ioContext->buffer);
+            }
             avio_context_free(&ioContext);
             ioContext = nullptr;
         }
+
         if (sws_ctx != nullptr) {
             sws_freeContext(sws_ctx);
             sws_ctx = nullptr;
@@ -105,7 +88,6 @@ typedef struct VideoInfo {
 
     AVIOContext *ioContext = nullptr;
     unsigned char *ioBuffer = nullptr;
-    jobject stream = nullptr;
     int32_t account = 0;
     int fd = -1;
     int64_t file_size = 0;
@@ -241,7 +223,7 @@ int64_t seekCallback(void *opaque, int64_t offset, int whence) {
     return 0;
 }
 
-jlong Java_com_ben_android_gifvideo_AnimatedDrawable_createDecoder(JNIEnv *env, jclass clazz, jstring src, jintArray data, jint account, jlong streamFileSize, jobject stream) {
+jlong Java_com_ben_android_gifvideo_AnimatedDrawable_createDecoder(JNIEnv *env, jclass clazz, jstring src, jintArray data, jint account, jlong streamFileSize) {
     VideoInfo *info = new VideoInfo();
     
     char const *srcString = env->GetStringUTFChars(src, 0);
@@ -256,7 +238,6 @@ jlong Java_com_ben_android_gifvideo_AnimatedDrawable_createDecoder(JNIEnv *env, 
     int ret;
     if (streamFileSize != 0) {
         info->file_size = streamFileSize;
-        info->stream = env->NewGlobalRef(stream);
         info->account = account;
         info->fd = open(info->src, O_RDONLY, S_IRGRP);
 
@@ -345,22 +326,6 @@ void Java_com_ben_android_gifvideo_AnimatedDrawable_destroyDecoder(JNIEnv *env, 
         return;
     }
     VideoInfo *info = (VideoInfo *) (intptr_t) ptr;
-    if (info->stream != nullptr) {
-        JNIEnv *jniEnv = nullptr;
-        JavaVMAttachArgs jvmArgs;
-        jvmArgs.version = JNI_VERSION_1_6;
-
-        bool attached;
-        if (JNI_EDETACHED == javaVm->GetEnv((void **) &jniEnv, JNI_VERSION_1_6)) {
-            javaVm->AttachCurrentThread(&jniEnv, &jvmArgs);
-            attached = true;
-        } else {
-            attached = false;
-        }
-        if (attached) {
-            javaVm->DetachCurrentThread();
-        }
-    }
     delete info;
 }
 
