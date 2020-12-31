@@ -21,4 +21,7 @@ videoView.setPath(path);
 //videoView.start();
 //videoView.stop();
 
+//Remember to release resources
+videoView.recycle();
+
 ```
