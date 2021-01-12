@@ -2,6 +2,7 @@ package com.ben.android.gifvideo;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.util.AttributeSet;
 
@@ -46,7 +47,7 @@ public final class VideoView extends androidx.appcompat.widget.AppCompatImageVie
     }
 
     /**
-     * Set an available file path and automatically play
+     * Set an available file path
      * @param path
      */
     public void setPath(String path) {
@@ -60,7 +61,6 @@ public final class VideoView extends androidx.appcompat.widget.AppCompatImageVie
             drawable.recycle();
         }
         setImageDrawable(drawable = new AnimatedDrawable(file));
-        drawable.start();
     }
 
 
@@ -109,7 +109,13 @@ public final class VideoView extends androidx.appcompat.widget.AppCompatImageVie
         setBackground(new BitmapDrawable(bitmap));
     }
 
+    @Override
+    public AnimatedDrawable getDrawable() {
+        return drawable;
+    }
+
     public interface OnPreparedListener {
         void onPrepared(int duration);
+        default void onProgress(int loopCount,int time){}
     }
 }

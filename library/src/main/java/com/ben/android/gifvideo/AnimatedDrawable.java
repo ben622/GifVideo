@@ -90,7 +90,8 @@ public class AnimatedDrawable extends BitmapDrawable implements Animatable {
     public volatile long nativePtr;
     private static ScheduledThreadPoolExecutor executor = new ScheduledThreadPoolExecutor(2, new java.util.concurrent.ThreadPoolExecutor.DiscardPolicy());
     private DispatchQueue decodeQueue;
-
+    private int loopCount = -1;
+    private int count = 0;
 
     private Runnable uiRunnableNoFrame = new Runnable() {
         @Override
@@ -206,6 +207,27 @@ public class AnimatedDrawable extends BitmapDrawable implements Animatable {
                                 AndroidUtilities.runOnUIThread(uiRunnableNoFrame);
                                 return;
                             }
+                            if (metaData[3] <= 0) {
+                                //播放计数
+                                count++;
+                            }
+
+                            AndroidUtilities.runOnUIThread(()->{
+                                try {
+                                    onPreparedListener.onProgress(count, metaData[3]);
+                                }catch (Exception e){
+                                }
+                            });
+
+                            if (loopCount !=-1) {
+                                if ( metaData[3]<=0 &&  --loopCount < 0){
+                                    AndroidUtilities.runOnUIThread(()->{
+                                        recycle();
+                                    });
+                                    return;
+                                }
+                            }
+
                             if (seekWas) {
                                 lastTimeStamp = metaData[3];
                             }
@@ -441,7 +463,8 @@ public class AnimatedDrawable extends BitmapDrawable implements Animatable {
                     canvas.translate(-dstRect.height(), 0);
                 }
                 canvas.scale(scaleX, scaleY);
-                canvas.drawBitmap(renderingBitmap, 0, 0, getPaint());
+                //canvas.drawBitmap(renderingBitmap, 0, 0, getPaint());
+                canvas.drawBitmap(Bitmaps.createBitmap(renderingBitmap,0,0,renderingBitmap.getWidth(),renderingBitmap.getHeight()), 0, 0, getPaint());
             }
             if (isRunning) {
                 long timeToNextFrame = Math.max(1, invalidateAfter - (now - lastFrameTime) - 17);
@@ -507,5 +530,8 @@ public class AnimatedDrawable extends BitmapDrawable implements Animatable {
 
     public void setOnPreparedListener(VideoView.OnPreparedListener onPreparedListener) {
         this.onPreparedListener = onPreparedListener;
+    }
+    public void setLoopCount(int loopCount) {
+        this.loopCount = loopCount;
     }
 }
