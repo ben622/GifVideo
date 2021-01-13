@@ -11,8 +11,11 @@ package com.ben.android.gifvideo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapShader;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.drawable.Animatable;
@@ -92,7 +95,9 @@ public class AnimatedDrawable extends BitmapDrawable implements Animatable {
     private DispatchQueue decodeQueue;
     private int loopCount = -1;
     private int count = 0;
-
+    private Rect rect = new Rect();
+    private Paint coverPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private int coverColor = Color.parseColor("#F5F7FA");
     private Runnable uiRunnableNoFrame = new Runnable() {
         @Override
         public void run() {
@@ -173,6 +178,9 @@ public class AnimatedDrawable extends BitmapDrawable implements Animatable {
         public void run() {
             if (!isRecycled) {
                 if (!decoderCreated && nativePtr == 0) {
+                    coverPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                    coverPaint.setColor(coverColor);
+                    coverPaint.setStyle(Paint.Style.FILL);
                     nativePtr = createDecoder(path.getAbsolutePath(), metaData, 0, streamFileSize);
                     if (nativePtr != 0 && onPreparedListener!=null) {
                         AndroidUtilities.runOnUIThread(()->onPreparedListener.onPrepared(metaData[4]));
@@ -463,14 +471,21 @@ public class AnimatedDrawable extends BitmapDrawable implements Animatable {
                     canvas.translate(-dstRect.height(), 0);
                 }
                 canvas.scale(scaleX, scaleY);
-                //canvas.drawBitmap(renderingBitmap, 0, 0, getPaint());
-                canvas.drawBitmap(Bitmaps.createBitmap(renderingBitmap,0,0,renderingBitmap.getWidth(),renderingBitmap.getHeight()), 0, 0, getPaint());
-            }
-            if (isRunning) {
-                long timeToNextFrame = Math.max(1, invalidateAfter - (now - lastFrameTime) - 17);
+                if (path.getName().endsWith(".gif")) {
+                    Bitmap bitmap = Bitmaps.createBitmap(renderingBitmap, 0, 0, renderingBitmap.getWidth(), renderingBitmap.getHeight());
+                    canvas.drawBitmap(bitmap, 0, 0, getPaint());
+
+                    int boundary = (int) (bitmap.getWidth() * 0.966f);
+                    rect.setEmpty();
+                    rect.set(boundary,0,renderingBitmap.getWidth(),renderingBitmap.getHeight());
+                    canvas.drawRect(rect,coverPaint);
+                } else {
+                    canvas.drawBitmap(renderingBitmap, 0, 0, getPaint());
+                }
             }
         }
     }
+
 
     @Override
     public int getMinimumHeight() {
@@ -533,5 +548,9 @@ public class AnimatedDrawable extends BitmapDrawable implements Animatable {
     }
     public void setLoopCount(int loopCount) {
         this.loopCount = loopCount;
+    }
+
+    public void setCoverColor(int coverColor) {
+        this.coverColor = coverColor;
     }
 }
